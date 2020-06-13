@@ -1,0 +1,13 @@
+version: '3.4'
+services:
+    devel:
+        build: .
+        volumes:
+            - .:/tfdetect/src
+            - build:/tfdetect/build
+        network_mode: 'host'
+        working_dir: /tfdetect
+        command: bash
+
+volumes:
+    build:
