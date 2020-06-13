@@ -38,8 +38,12 @@ RUN bazel build \
 RUN tar -xC /usr -f bazel-bin/tensorflow/tools/lib_package/cheaders.tar
 RUN tar -xC /usr -f bazel-bin/tensorflow/tools/lib_package/clib.tar
 
-RUN apt-get update && apt-get --no-install-recommends --yes install \
+RUN apt-get --no-install-recommends --yes install \
     ninja-build \
     python3-setuptools \
     python3-wheel
 RUN pip3 install meson
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends --yes install \
+    libglib2.0-dev \
+    libopencv-dev
