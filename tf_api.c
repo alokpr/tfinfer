@@ -35,3 +35,22 @@ TF_Graph* tf_graph_from_file(const gchar* filepath, GError** error) {
   }
   return g_steal_pointer(&graph);
 }
+
+TF_Session* tf_session_new(TF_Graph* graph, GError** error) {
+  g_autoptr(TF_Status) status = TF_NewStatus();
+  g_autoptr(TF_SessionOptions) options = TF_NewSessionOptions();
+  g_autoptr(TF_Session) session = TF_NewSession(graph, options, status);
+
+  TF_Code status_code = TF_GetCode(status);
+  if (status_code != TF_OK) {
+    *error = g_error_new_literal(TF_ERROR, status_code, TF_Message(status));
+    return NULL;
+  }
+  return g_steal_pointer(&session);
+}
+
+void tf_session_free(TF_Session* session) {
+  g_autoptr(TF_Status) status = TF_NewStatus();
+  TF_CloseSession(session, status);
+  TF_DeleteSession(session, status);
+}
