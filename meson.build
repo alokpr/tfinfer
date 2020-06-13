@@ -7,7 +7,7 @@ tf_dep = meson.get_compiler('c').find_library('tensorflow')
 
 sources = [
   'main.c',
-  'tf_buffer.c'
+  'tf_api.c'
 ]
 executable('tfinfer',
   sources,

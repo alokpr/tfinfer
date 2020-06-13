@@ -5,6 +5,8 @@ services:
         volumes:
             - .:/tfdetect/src
             - build:/tfdetect/build
+        environment:
+            - G_MESSAGES_DEBUG=all
         network_mode: 'host'
         working_dir: /tfdetect
         command: bash
