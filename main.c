@@ -1,8 +1,5 @@
-#include <stdio.h>
-
+#include "config.h"
 #include "tf_api.h"
-
-#define MODEL_FILE "/usr/local/share/tfinfer/data/model.pb"
 
 int main() {
   g_info("tensorFlow version: %s", TF_Version());
