@@ -2,7 +2,7 @@
 #include "tf_api.h"
 
 int main() {
-  g_info("tensorFlow version: %s", TF_Version());
+  g_info("tensorflow version: %s", TF_Version());
   g_info("model file: %s", TF_MODEL_FILE);
 
   g_autoptr(GError) error = NULL;

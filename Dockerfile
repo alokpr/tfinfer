@@ -38,6 +38,13 @@ RUN bazel build \
 RUN tar -xC /usr -f bazel-bin/tensorflow/tools/lib_package/cheaders.tar
 RUN tar -xC /usr -f bazel-bin/tensorflow/tools/lib_package/clib.tar
 
+RUN bazel build \
+    -c opt \
+    //tensorflow/lite/c:tensorflowlite_c
+RUN mkdir -p /usr/include/tensorflow/lite/c/ \
+    && cp tensorflow/lite/c/*.h /usr/include/tensorflow/lite/c/ \
+    && cp bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so /usr/lib/
+
 RUN apt-get --no-install-recommends --yes install \
     ninja-build \
     python3-setuptools \
