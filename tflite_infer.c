@@ -24,6 +24,21 @@ enum OutputTensor {
   kOutputTensorDetections
 };
 
+gboolean load_input(const Image* input_img, TfLiteInterpreter* interpreter,
+                    GError** error) {
+  g_assert_cmpint(1, ==, TfLiteInterpreterGetInputTensorCount(interpreter));
+
+  TfLiteTensor* input_tensor = TfLiteInterpreterGetInputTensor(interpreter, 0);
+  g_autoptr(Image) output_img = image_from_tensor(input_tensor, error);
+  if (!output_img) return FALSE;
+
+  int width, height;
+  image_size(output_img, &width, &height);
+  image_resize(input_img, width, height, output_img);
+  image_swap_rb(output_img, output_img);
+  return TRUE;
+}
+
 void print_output(TfLiteInterpreter* interpreter) {
   g_assert_cmpint(4, ==, TfLiteInterpreterGetOutputTensorCount(interpreter));
 
@@ -78,9 +93,14 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  g_assert_cmpint(1, ==, TfLiteInterpreterGetInputTensorCount(interpreter));
-  TfLiteTensor* in_tensor = TfLiteInterpreterGetInputTensor(interpreter, 0);
-  image_read(INPUT_FILE, in_tensor);
+  g_autoptr(GError) error = NULL;
+  g_autoptr(Image) input_image = image_from_file(INPUT_FILE, &error);
+  if (!input_image) {
+    g_error("image_from_file failed: %s", error->message);
+  }
+  if (!load_input(input_image, interpreter, &error)) {
+    g_error("load_input failed: %s", error->message);
+  }
 
   status = TfLiteInterpreterInvoke(interpreter);
   if (status != kTfLiteOk) {
