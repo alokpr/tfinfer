@@ -44,5 +44,7 @@ void image_read(const char* filepath, TfLiteTensor* tensor) {
   if (data_type != CV_8UC3) {
     g_assert_cmpint(CV_32FC3, ==, data_type);
     src.convertTo(dst, CV_32FC3, 1 / 255.0);
+  } else {
+    src.copyTo(dst);
   }
 }
