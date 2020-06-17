@@ -1,12 +1,15 @@
-project('tfinfer', 'c',
+project('tfinfer', ['c', 'cpp'],
   version: '0.1'
 )
 
 data_dir = join_paths(get_option('datadir'), meson.project_name())
+install_data('data/input.jpeg', install_dir: data_dir)
 install_data('data/model.pb', install_dir: data_dir)
 install_data('data/model.tflite', install_dir: data_dir)
 
 cdata = configuration_data()
+cdata.set_quoted('INPUT_FILE',
+  join_paths(get_option('prefix'), data_dir, 'input.jpeg'))
 cdata.set_quoted('TF_MODEL_FILE',
   join_paths(get_option('prefix'), data_dir, 'model.pb'))
 cdata.set_quoted('TFLITE_MODEL_FILE',
@@ -14,6 +17,7 @@ cdata.set_quoted('TFLITE_MODEL_FILE',
 configure_file(output: 'config.h', configuration: cdata)
 
 glib_dep = dependency('glib-2.0')
+opencv_dep = dependency('opencv')
 tf_dep = meson.get_compiler('c').find_library('tensorflow')
 tflite_dep = meson.get_compiler('c').find_library('tensorflowlite_c')
 
@@ -28,9 +32,14 @@ executable('tf_infer',
 
 executable('tflite_infer',
   [
+    'image.cpp',
     'tflite_api.c',
     'tflite_infer.c',
   ],
-  dependencies: [glib_dep, tflite_dep],
+  dependencies: [
+    glib_dep,
+    opencv_dep,
+    tflite_dep
+  ],
   install: true
 )
