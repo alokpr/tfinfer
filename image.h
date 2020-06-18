@@ -23,6 +23,8 @@ void image_copy(const Image* src, Image* dst);
 void image_convert(const Image* src, double alpha, Image* dst);
 void image_resize(const Image* src, int w, int h, Image* dst);
 void image_swap_rb(const Image* src, Image* dst);
+void image_draw_roi(Image* img, int model, int klass, int score, int x, int y,
+                    int w, int h);
 
 G_END_DECLS
 

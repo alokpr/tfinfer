@@ -18,6 +18,20 @@ struct _Image {
   cv::Mat impl;
 };
 
+static cv::Scalar to_color(int model, int klass) {
+  // TODO: Implement a scheme.
+  switch (klass) {
+    case 0:
+      return cv::Scalar(0, 0, 255);
+    case 1:
+      return cv::Scalar(0, 255, 0);
+    case 2:
+      return cv::Scalar(255, 0, 0);
+    default:
+      return cv::Scalar(255, 255, 0);
+  }
+}
+
 void image_free(Image* image) { delete image; }
 
 Image* image_new() { return new _Image; }
@@ -120,4 +134,10 @@ void image_swap_rb(const Image* src, Image* dst) {
   g_assert_nonnull(src);
   g_assert_nonnull(dst);
   cv::cvtColor(src->impl, dst->impl, cv::COLOR_BGR2RGB);
+}
+
+void image_draw_roi(Image* img, int model, int klass, int score, int x, int y,
+                    int w, int h) {
+  cv::rectangle(img->impl, cv::Point(x, y), cv::Point(x + w, y + h),
+                to_color(model, klass));
 }

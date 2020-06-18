@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "config.h"
 #include "image.h"
 #include "tflite_api.h"
@@ -39,7 +41,7 @@ gboolean load_input(const Image* input_img, TfLiteInterpreter* interpreter,
   return TRUE;
 }
 
-void print_output(TfLiteInterpreter* interpreter) {
+void draw_roi(TfLiteInterpreter* interpreter, Image* image) {
   g_assert_cmpint(4, ==, TfLiteInterpreterGetOutputTensorCount(interpreter));
 
   const TfLiteTensor* dtn_tensor =
@@ -53,16 +55,25 @@ void print_output(TfLiteInterpreter* interpreter) {
 
   const TfLiteTensor* cls_tensor =
       TfLiteInterpreterGetOutputTensor(interpreter, kOutputTensorClasses);
-  const float* classes = (const float*)TfLiteTensorData(cls_tensor);
+  const float* klasses = (const float*)TfLiteTensorData(cls_tensor);
 
   const TfLiteTensor* scr_tensor =
       TfLiteInterpreterGetOutputTensor(interpreter, kOutputTensorScores);
   const float* scores = (const float*)TfLiteTensorData(scr_tensor);
 
+  int width, height;
+  image_size(image, &width, &height);
   for (int i = 0; i < num_detections; ++i) {
-    g_info("%d: class=%d score=%f location=[%f %f %f %f]", i, (int)classes[i],
-           scores[i], locations[4 * i], locations[4 * i + 1],
-           locations[4 * i + 2], locations[4 * i + 3]);
+    int klass = klasses[i];
+    int score = round(scores[i] * 100);
+    int top = round(height * locations[4 * i]);
+    int left = round(width * locations[4 * i + 1]);
+    int bottom = round(height * locations[4 * i + 2]);
+    int right = round(width * locations[4 * i + 3]);
+    g_info("%d: class=%d score=%d location=[%d %d %d %d]", i, klass, score,
+           left, top, right - left, bottom - top);
+    image_draw_roi(image, 1, klass, score, left, top, right - left,
+                   bottom - top);
   }
 }
 
@@ -108,6 +119,7 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  print_output(interpreter);
+  draw_roi(interpreter, input_image);
+  image_write(input_image, "output.jpeg");
   return EXIT_SUCCESS;
 }
